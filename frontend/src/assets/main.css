@@ -1,35 +1,22 @@
-@import './base.css';
-
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  background-color: #000000;
+  min-height: 100vh;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
-}
-
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+  .button-style {
+    width: 100px;
+    height: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
+    font-size: 20px; /* 按钮的文字大小 */
+    color: white; /* 按钮的文字颜色 */
+    background-color: #8e8e8e; /* 按钮的背景颜色 */
+    border: none; /* 去掉边框 */
+    border-radius: 10px; /* 圆角 */
+    cursor: pointer; /* 鼠标悬停时显示为指针 */
+    transition: background-color 0.3s; /* 背景颜色过渡效果 */
   }
-}
-
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
+  
+  .button-style:hover {
+    background-color: #eeeeee; /* 鼠标悬停时的背景颜色 */
   }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-}
