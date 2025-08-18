@@ -29,7 +29,7 @@
         ['V', 'W', 'X', 'Y', 'Z']
     ]
 
-    import { ref, onMounted } from 'vue'
+    import { ref, onMounted, nextTick, watch } from 'vue'
     const letterImages = ref({})
     const letterChosenImages = ref({})
     const letterYellowImages = ref({})
@@ -43,6 +43,22 @@
       letterYellowImages.value = await loadLetterImages(`../assets/images/hit`)
       letterGreenImages.value = await loadLetterImages(`../assets/images/present`)
     })
+
+    watch(word_cnt, (newVal, oldVal) => {
+      if (newVal === 6) {
+        setTimeout(() => {
+          alert("You lose...But no worry, can try again!")
+          clearMatrix()
+        }, 500)
+      }
+    })
+
+    function clearMatrix() {
+      current_cnt.value = 0
+      current_word.value = ''
+      word_cnt.value = 0
+      image_matrix.value = (Array(6).fill().map(() => Array(5).fill(blankImage)))
+    }
 
     const onKeyPress = async (letter) => {
       console.log(`Pressed letter: ${letter}`)
@@ -94,7 +110,7 @@
                   console.log("path:", letterYellowImages[letter])
                 }
                 else if (resultValue === 0) {
-                  image_matrix.value[word_cnt.value][i] = letterImages.value[letter]
+                  image_matrix.value[word_cnt.value][i] = letterGrayImages.value[letter]
                   console.log("path:", letterGrayImages[letter])
                 }
                 else if(resultValue === 2){ // === 2
@@ -108,9 +124,9 @@
         } catch (error) {
           console.log('error in onSubmit:', error)
         }
-        word_cnt.value += 1
         current_cnt.value = 0
         current_word.value =  ""
+        word_cnt.value += 1
       }
       else{
         alert("Please input five letters!")

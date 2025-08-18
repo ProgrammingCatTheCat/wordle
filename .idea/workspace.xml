@@ -170,7 +170,7 @@
       <workItem from="1755493289600" duration="9129000" />
       <workItem from="1755505385542" duration="14000" />
       <workItem from="1755505428944" duration="3185000" />
-      <workItem from="1755511555656" duration="11525000" />
+      <workItem from="1755511555656" duration="13749000" />
     </task>
     <servers />
   </component>
@@ -198,7 +198,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/frontend/src/components/Wordle.vue</url>
-          <line>87</line>
+          <line>103</line>
           <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="9" />
         </line-breakpoint>
