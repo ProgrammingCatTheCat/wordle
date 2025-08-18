@@ -1,14 +1,18 @@
 <script setup>
+    import axios from 'axios'
     import blankImage from "../assets/images/blank.png"
-    const image_matrix = Array(6).fill().map(() => Array(5).fill(blankImage))
 
-    const loadLetterImages = async () => {
+    const current_cnt = ref(0)
+    const current_word = ref('')
+    const word_cnt = ref(0)
+    const image_matrix = ref(Array(6).fill().map(() => Array(5).fill(blankImage)))
+
+    const loadLetterImages = async (path) => {
         const letterImages = {}
-        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-        
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
         for (const letter of letters) {
             try {
-            const module = await import(`../assets/images/alphabet/${letter}.png`)
+            const module = await import(`${path}/${letter}.png`)
             letterImages[letter] = module.default
             } catch (error) {
             console.warn(`Failed to load image for letter ${letter}`)
@@ -27,13 +31,108 @@
 
     import { ref, onMounted } from 'vue'
     const letterImages = ref({})
+    const letterChosenImages = ref({})
+    const letterYellowImages = ref({})
+    const letterGreenImages = ref({})
+    const letterGrayImages = ref({})
 
     onMounted(async () => {
-    letterImages.value = await loadLetterImages()
+      letterImages.value = await loadLetterImages(`../assets/images/alphabet`)
+      letterGrayImages.value = await loadLetterImages(`../assets/images/alphabet`)
+      letterChosenImages.value = await loadLetterImages(`../assets/images/chosen`)
+      letterYellowImages.value = await loadLetterImages(`../assets/images/hit`)
+      letterGreenImages.value = await loadLetterImages(`../assets/images/present`)
     })
 
-    const onKeyPress = (letter) => {
-    console.log(`Pressed letter: ${letter}`)
+    const onKeyPress = async (letter) => {
+      console.log(`Pressed letter: ${letter}`)
+      console.log(current_cnt.value)
+      if (current_cnt.value < 5) {
+        current_word.value += letter
+        console.log(current_word.value)
+        image_matrix.value[word_cnt.value][current_cnt.value] = letterChosenImages.value[letter]
+        console.log(letterImages.value[letter])
+        current_cnt.value += 1
+      }
+      else{
+        alert("Already five letters, please press submit to check word!")
+      }
+    }
+
+    const onSubmit = async () => {
+      if (current_cnt.value === 5) {
+        console.log("Submitted word:", current_word.value)
+
+        try {
+          const response = await axios.post('http://localhost:8080/api/submitWord', {
+            word: current_word.value
+          })
+          console.log('status:', response.status)
+          console.log('response:', response.data)
+
+          if (response.status === 200) {
+            const result = response.data.result;
+            console.log('result:', result)
+            if(result && result[0] === -1){
+              alert("Word not in wordlist")
+              while(current_cnt.value > 0){
+                current_cnt.value -= 1
+                image_matrix.value[word_cnt.value][current_cnt.value] = blankImage
+              }
+              current_word.value = ""
+              word_cnt.value -= 1
+              console.log("Clear All:", current_word.value)
+            }
+            else if(result && result.length >= 6) {
+              for (let i = 0; i < 5; i++) {
+                const letter = current_word.value[i];
+                const resultValue = result[i + 1];
+
+                console.log(`Processing letter ${letter} at position ${i} with result ${resultValue}`)
+                if (resultValue === 1) {
+                  image_matrix.value[word_cnt.value][i] = letterYellowImages.value[letter]
+                  console.log("path:", letterYellowImages[letter])
+                }
+                else if (resultValue === 0) {
+                  image_matrix.value[word_cnt.value][i] = letterImages.value[letter]
+                  console.log("path:", letterGrayImages[letter])
+                }
+                else if(resultValue === 2){ // === 2
+                  image_matrix.value[word_cnt.value][i] = letterGreenImages.value[letter]
+                  console.log("path:", letterGreenImages[letter])
+                }
+              }
+            }
+          }
+
+        } catch (error) {
+          console.log('error in onSubmit:', error)
+        }
+        word_cnt.value += 1
+        current_cnt.value = 0
+        current_word.value =  ""
+      }
+      else{
+        alert("Please input five letters!")
+      }
+    }
+
+    const onBackspace = async () => {
+      if (current_cnt.value > 0) {
+        current_word.value = current_word.value.slice(0, -1)
+        current_cnt.value -= 1
+        image_matrix.value[word_cnt.value][current_cnt.value] = blankImage
+        console.log("Backspace:", current_word.value)
+      }
+    }
+
+    const onClearAll = async () => {
+      while(current_cnt.value > 0){
+        current_cnt.value -= 1
+        image_matrix.value[word_cnt.value][current_cnt.value] = blankImage
+      }
+      current_word.value = ""
+      console.log("Clear All:", current_word.value)
     }
 
 
@@ -74,6 +173,12 @@
         />
       </div>
         </div>
+
+      <div class="button-container">
+        <button id="submit" class="button-style" @click="onSubmit">submit</button>
+        <button id="submit" class="button-style" @click="onBackspace">backspace</button>
+        <button id="submit" class="button-style" @click="onClearAll">clear all</button>
+      </div>
     </div>
 </template>
 
@@ -94,8 +199,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 500px; /* 明确设置宽度为10个50px图片 + 9个5px间距 = 545px，这里留点余地 */
-  margin: 0 auto; /* 自动外边距实现水平居中 */
+  width: 500px;
+  margin: 0 auto;
 }
 
 .empty-word-image {
@@ -129,5 +234,9 @@
 
 .keyboard-key:hover {
   transform: scale(1.1);
+}
+
+.button-container {
+  margin-top: 10px;
 }
 </style>
