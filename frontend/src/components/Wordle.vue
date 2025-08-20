@@ -40,8 +40,8 @@
       letterImages.value = await loadLetterImages(`../assets/images/alphabet`)
       letterGrayImages.value = await loadLetterImages(`../assets/images/alphabet`)
       letterChosenImages.value = await loadLetterImages(`../assets/images/chosen`)
-      letterYellowImages.value = await loadLetterImages(`../assets/images/hit`)
-      letterGreenImages.value = await loadLetterImages(`../assets/images/present`)
+      letterYellowImages.value = await loadLetterImages(`../assets/images/present`)
+      letterGreenImages.value = await loadLetterImages(`../assets/images/hit`)
     })
 
     watch(word_cnt, (newVal, oldVal) => {
@@ -104,19 +104,27 @@
                 const letter = current_word.value[i];
                 const resultValue = result[i + 1];
 
-                console.log(`Processing letter ${letter} at position ${i} with result ${resultValue}`)
+                // console.log(`Processing letter ${letter} at position ${i} with result ${resultValue}`)
                 if (resultValue === 1) {
                   image_matrix.value[word_cnt.value][i] = letterYellowImages.value[letter]
-                  console.log("path:", letterYellowImages[letter])
+                  // console.log("path:", letterYellowImages[letter])
                 }
                 else if (resultValue === 0) {
                   image_matrix.value[word_cnt.value][i] = letterGrayImages.value[letter]
-                  console.log("path:", letterGrayImages[letter])
+                  // console.log("path:", letterGrayImages[letter])
                 }
                 else if(resultValue === 2){ // === 2
                   image_matrix.value[word_cnt.value][i] = letterGreenImages.value[letter]
-                  console.log("path:", letterGreenImages[letter])
+                  // console.log("path:", letterGreenImages[letter])
                 }
+              }
+
+              if(response.data.message === "hit"){
+                setTimeout(() => {
+                  alert("You win!")
+                  clearMatrix()
+                }, 500)
+
               }
             }
           }
